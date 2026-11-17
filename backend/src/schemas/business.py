@@ -36,3 +36,40 @@ class ReviewInput(BaseModel):
 class ReviewEdit(BaseModel):
  expected_cents:int=Field(ge=0,le=1000000000000)
  note:str=Field(min_length=8,max_length=2000)
+
+
+ContractVenue=Literal['','云幕大剧场','河畔小剧场','星光排练厅']
+class ContractInput(BaseModel):
+ code:str=Field(min_length=1,max_length=60)
+ name:str=Field(min_length=2,max_length=100)
+ producer:str=Field(min_length=1,max_length=100)
+ play:str=Field(min_length=1,max_length=60)
+ venue:ContractVenue=''
+ start_day:date
+ end_day:date
+ ratio_bp:int=Field(ge=0,le=10000)
+ advance_cents:int=Field(ge=0,le=100000000000)
+ status:Literal['active','ended']='active'
+ @model_validator(mode='after')
+ def consistent(self):
+  if self.start_day>self.end_day:raise ValueError('合同起始日期不得晚于结束日期')
+  return self
+class ContractEdit(BaseModel):
+ name:str=Field(min_length=2,max_length=100)
+ producer:str=Field(min_length=1,max_length=100)
+ play:str=Field(min_length=1,max_length=60)
+ venue:ContractVenue=''
+ start_day:date
+ end_day:date
+ ratio_bp:int=Field(ge=0,le=10000)
+ advance_cents:int=Field(ge=0,le=100000000000)
+ status:Literal['active','ended']='active'
+ @model_validator(mode='after')
+ def consistent(self):
+  if self.start_day>self.end_day:raise ValueError('合同起始日期不得晚于结束日期')
+  return self
+class ReceiptInput(BaseModel):
+ receipt_no:str=Field(min_length=1,max_length=100)
+ amount_cents:int=Field(gt=0,le=100000000000)
+ paid_day:date
+ note:str=Field(default='',max_length=2000)
